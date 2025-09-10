@@ -1,0 +1,181 @@
+{
+  "name": "Automation 1",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Rahul AI Consulation Form",
+        "formDescription": "Hey there, Glad to meet you.\nPlease fill in the below details to complete the form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "placeholder": "Write your name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Service",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Consulatation"
+                  },
+                  {
+                    "option": "Training"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -528,
+        16
+      ],
+      "id": "23d6dcbe-8e21-4364-a144-36a86a17b11b",
+      "name": "On form submission",
+      "webhookId": "2eb02e00-b68b-4c08-8c33-5c2d45e2822a",
+      "notesInFlow": true,
+      "notes": "My First Form"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1p6ZtLb1rSRpFB--hUyi5miFgUpy3wgg5vxiozYGWih8",
+          "mode": "list",
+          "cachedResultName": "Consultation Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1p6ZtLb1rSRpFB--hUyi5miFgUpy3wgg5vxiozYGWih8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "=gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Service": "={{ $json.Service }}",
+            "Time": "={{ $json.submittedAt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service",
+              "displayName": "Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -336,
+        0
+      ],
+      "id": "658921a4-f38a-4b7e-9565-b2f88ed1e9b0",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f62C2ecpelf3Q0k7",
+          "name": "Google Sheets account"
+        }
+      },
+      "notes": "My First Automation"
+    },
+    {
+      "parameters": {
+        "sendTo": "learnwithn8n@gmail.com",
+        "subject": "Form Consulation data",
+        "emailType": "text",
+        "message": "=Hey Rahul, \n\nHow are you ?\n\nThere is a new lead in the form. \nName :   {{ $json.Name }}\nService : {{ $json.Service }}\nTime  : {{ $json.Time }}\n\nSource : {{ $workflow.id }}\n\nThanks,\nYour Awesome Workflow",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        0
+      ],
+      "id": "1b8325ab-4426-4668-93cf-ca6d47ac5f8e",
+      "name": "Send a message",
+      "webhookId": "a43bb882-591e-4fe3-9afd-f5f5ca48e9a5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YblH1Pd9IglQ1zZH",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e99e6fee-c8d3-48e6-b630-5981f2ac2222",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c217ea0e40795eeaa79324bdc37c8dfdd388a3e5c51cb34ebf0d3fa1f5d3c1cf"
+  },
+  "id": "AtrcNU2gbPWJfWLl",
+  "tags": []
+}
