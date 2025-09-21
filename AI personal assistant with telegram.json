@@ -1,0 +1,439 @@
+{
+  "name": "AI personal assistant with telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1b67dccf-ebae-4699-921e-2c8f4d6353c4",
+      "name": "Telegram Trigger",
+      "webhookId": "4c22ef12-364e-4cd8-8da0-0ca3d0524e65",
+      "credentials": {
+        "telegramApi": {
+          "id": "0EHZNL9LrsOqnyeg",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1536,
+        -48
+      ],
+      "id": "631a32d8-150a-4cb7-b162-c9f29b3d0028",
+      "name": "Send a text message",
+      "webhookId": "1d4af631-89cd-4a5e-8b03-51a524f2f95a",
+      "credentials": {
+        "telegramApi": {
+          "id": "0EHZNL9LrsOqnyeg",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=You are a personal assistant that helps user fulfill their request.\n\nWhen you are asked to perform a task on the current date. Please use the current time and date :  {{ $now }}\n\n##Output \n\nYou should output the result and don't include any thing neccessary. Just make sure that you politely answer user question and ask if any other information is required.\n\nIf there is something related to gtting the task, please make sure that you should use the tool 'get_many_google_task_tool' to get the task as user want"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        -32
+      ],
+      "id": "98fb85a4-bf6e-4838-8fc9-d8bbf6dbf331",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1072,
+        272
+      ],
+      "id": "6373a7a0-3d81-4bc3-9432-463ed113653b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "fIjeWfPxrct9evI7",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "769dcf1e-95d1-4907-8062-892fa27d6a12",
+              "name": "message.text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "48c7b6c0-f1c8-4a4d-bece-e728d49c0b0a",
+              "name": "message.chat.id",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        0
+      ],
+      "id": "fcb858bf-2e61-4c39-b9ec-1245d8587e44",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Edit Fields').item.json.message.chat.id }}",
+        "contextWindowLength": 7
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1264,
+        240
+      ],
+      "id": "f332ce29-b74d-4197-9bd0-34e52eaed9ec",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "2f00aa5f-4d19-42c2-9677-3449e0359e8a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1cda3adb-b3d1-4ef4-96c9-8930764df991",
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "voice"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        224,
+        128
+      ],
+      "id": "39f5730e-ef1a-47e8-8d71-11b09c5bb423",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        256
+      ],
+      "id": "e948ed33-b44f-48e5-b07f-1222110bc8cf",
+      "name": "Get a file",
+      "webhookId": "070ff5e8-2947-468a-97b9-07fde0955435",
+      "credentials": {
+        "telegramApi": {
+          "id": "0EHZNL9LrsOqnyeg",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        608,
+        256
+      ],
+      "id": "ebea45d3-1d41-45da-88f6-d5471f4e2189",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "fIjeWfPxrct9evI7",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0a1cf19b-af6e-4d21-a0f9-0984514b79d6",
+              "name": "Message.text",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        816,
+        192
+      ],
+      "id": "533bc009-cf7c-4eae-8651-4ef9497ab87b",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "task": "SWJrOVI2cndzVFgybWdWdg",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "additionalFields": {
+          "showCompleted": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Show_Completed', ``, 'boolean') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleTasksTool",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        208
+      ],
+      "id": "10c158aa-e84f-4e58-b312-7acf74ece831",
+      "name": "get_many_google_task_tool",
+      "credentials": {
+        "googleTasksOAuth2Api": {
+          "id": "QLCU6rhNlDbzlZEn",
+          "name": "Google Tasks account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_many_google_task_tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bb27e79e-2236-4ddd-8fc7-3cdd4468c253",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c217ea0e40795eeaa79324bdc37c8dfdd388a3e5c51cb34ebf0d3fa1f5d3c1cf"
+  },
+  "id": "0AQgLuoKcF8P0vo2",
+  "tags": [
+    {
+      "createdAt": "2025-09-19T17:30:54.227Z",
+      "updatedAt": "2025-09-19T17:30:54.227Z",
+      "id": "BqsUe9sXn5OcnJ4N",
+      "name": "telegram"
+    },
+    {
+      "createdAt": "2025-09-19T17:35:14.731Z",
+      "updatedAt": "2025-09-19T17:35:14.731Z",
+      "id": "pTJ46C6llhXEQBkz",
+      "name": "assistant"
+    }
+  ]
+}
